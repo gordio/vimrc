@@ -53,6 +53,9 @@ set tabstop=4 softtabstop=4 shiftwidth=4 noexpandtab " use tabs (like 4 spaces)
 set textwidth=0 wrapmargin=0 " don't auto wrap
 set colorcolumn=80
 
+"default files
+set wildignore+=*.o,*.obj,*.pyc,*.pyo
+
 "indent selection
 xnoremap <Tab> >gv
 xnoremap <S-Tab> <gv
@@ -176,7 +179,7 @@ endif
 "}}}
 
 
-" Folding {{{
+" --- Folding {{{
 set foldtext=SimpleFoldText()
 fu! SimpleFoldText()
 	let nl = v:foldend - v:foldstart + 1
@@ -190,6 +193,27 @@ fu! SimpleFoldText()
 	return txt . info
 endfu
 "}}}
+
+
+" --- Helpers {{{
+fun! ReadGitIgnore()
+	let filename = '.gitignore'
+	if filereadable(filename)
+		let igstring = ''
+		for oline in readfile(filename)
+			let line = substitute(oline, '\s|\n|\r', '', "g")
+			if line =~ '^#' | con | endif
+			if line == '' | con  | endif
+			if line =~ '^!' | con  | endif
+			if line =~ '/$' | let igstring .= "," . line . "*" | con | endif
+			let igstring .= "," . line
+		endfor
+		let execstring = "set wildignore=".substitute(igstring, '^,', '', "g")
+		execute execstring
+	else
+		echo "Can't find '" . filename . "' at current path."
+	endif
+endf
 
 
 if !exists("*UpdateConfig")
@@ -212,6 +236,7 @@ if has('autocmd')
 	au! BufWinLeave ?* mkview
 	au! BufWinEnter ?* silent loadview
 endif
+"}}}
 
 
 
@@ -234,6 +259,15 @@ let g:NERDTrimTrailingWhitespace = 1
 
 nnoremap <leader>cc :call NERDComment(0, "toggle")<CR>
 vnoremap <leader>cc :call NERDComment(0, "toggle")<CR>
+"}}}
+
+
+" NERDCommenter {{{
+let NERDTreeHighlightCursorline=1
+let NERDTreeRespectWildIgnore=1
+let NERDTreeMinimalUI=1
+let NERDTreeHijackNetrw=1
+nmap <leader>tf :NERDTreeToggle<CR>
 "}}}
 
 
@@ -314,4 +348,16 @@ autocmd FileType c,cpp,objc map <buffer><Leader>x <Plug>(operator-clang-format)
 " Toggle auto formatting:
 nmap <Leader>C :ClangFormatAutoToggle<CR>
 "}}}
+
+
+" TagBar {{{
+let g:tagbar_width = 30
+let g:tagbar_autoclose = 1
+let g:tagbar_compact = 1
+let g:tagbar_iconchars = ['▸', '▾']
+"let g:tagbar_iconchars = ['+', '-']
+nmap <leader>tt :TagbarToggle<CR>
+"}}}
+
+
 " vim: set fen fdm=marker ts=4 sw=4 tw=78 noet :

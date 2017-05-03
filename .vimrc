@@ -203,7 +203,12 @@ if has('autocmd')
 	" auto reload config after save
 	au! BufWritePost .vimrc :call UpdateConfig()
 
-	au! FileType svn,*commit*,*.txt,*.md setlocal spell spelllang=en,ru
+	au! FileType svn,*commit*,*.txt,*.md :setl spell spelllang=en,ru
+	au! BufWinEnter,FileType help :setl cc=0
+
+	" auto store/restore views
+	au! BufWinLeave ?* mkview
+	au! BufWinEnter ?* silent loadview
 endif
 
 

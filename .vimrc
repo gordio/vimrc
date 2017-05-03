@@ -36,7 +36,7 @@ let g:netrw_altv=1   " Open split at right
 let g:netrw_liststyle=3
 
 set nobackup          "don't save backup files
-set number            "show line numbers
+set number numberwidth=5
 set hlsearch          "highlight search matches
 set ignorecase smartcase
 set hidden            "allow hiding buffers which have modifications
@@ -53,6 +53,10 @@ set tabstop=4 softtabstop=4 shiftwidth=4 noexpandtab " use tabs (like 4 spaces)
 set textwidth=0 wrapmargin=0 " don't auto wrap
 set colorcolumn=80
 
+"indent selection
+xnoremap <Tab> >gv
+xnoremap <S-Tab> <gv
+
 
 set sessionoptions=buffers,tabpages,help
 if has('win32') || has('win64')
@@ -68,30 +72,7 @@ else
 endif
 
 
-" -- STATUSLINE {{{
-function! SLUpdateColor(mode)
-	if a:mode == 'i'
-		hi statusline ctermfg=4 ctermbg=0 guibg=Cyan guifg=Black
-	elseif a:mode == 'r'
-		hi statusline ctermfg=1 ctermbg=0 guibg=Purple guifg=Black
-	else
-		hi statusline ctermfg=1 ctermbg=0 guibg=DarkRed guifg=Black
-	endif
-endfunction
-
-au InsertEnter * call SLUpdateColor(v:insertmode)
-au InsertLeave * hi StatusLine ctermfg=8 ctermbg=15 guibg=DarkGrey guifg=White
-hi StatusLine ctermfg=8 ctermbg=15 guibg=DarkGrey guifg=White
-hi StatusLineNC ctermfg=0 ctermbg=0 guibg=DarkGrey guifg=Black
-
-fu! SLReadOnly()
-	if &readonly || !&modifiable
-		return ''
-	else
-		return ''
-	endif
-endfu
-
+" --- STATUSLINE {{{
 " Find out current buffer's size and output it.
 fu! SLFileSize()
 	let bytes = getfsize(expand('%:p'))
@@ -124,17 +105,38 @@ fu! SLGitBranch()
 endfu
 
 " now set it up to change the status line based on mode
+fu! SLUpdateColor(mode)
+	if a:mode == 'i'
+		hi sl_mode ctermbg=2 guibg=#094afe
+	elseif a:mode == 'r'
+		hi sl_mode ctermbg=9 guibg=#094afe
+	elseif a:mode == 'v'
+		hi sl_mode ctermbg=13 guibg=#094afe
+	else
+		hi sl_mode ctermbg=4 guibg=#094afe
+	endif
+	return ''
+endfu
+
+"defaults
+hi StatusLine ctermfg=8 ctermbg=15 guibg=DarkGrey guifg=White
+hi StatusLineNC ctermfg=8 ctermbg=0 guibg=DarkGrey guifg=Black
+hi sl_mode ctermfg=15 guifg=#ffffff  guibg=#094afe
+set lazyredraw "required by this function
+set laststatus=2
+hi sl_branch ctermfg=11 ctermbg=8
+hi sl_minor ctermfg=7 ctermbg=8
 
 set stl=
-"set stl=\ %n\                  "buffer number
-set stl+=%0*\ %{toupper(mode())}\ :
-set stl+=%<%#sl_file#%F%*                                     " Filename
-set stl+=%#sl_minor#%{&mod?'*':''}%h%r%*                      " Filemodes
-set stl+=%{SLReadOnly()}
+set stl+=%{SLUpdateColor(mode())}%#sl_mode#\ %{toupper(mode())}
+set stl+=\ %*
+set stl+=%#sl_minor#\ %n:                             "buffer number
+set stl+=\ %<%#sl_file#%F%*                                   " Filename
+set stl+=%#sl_minor#%{&mod?'*':''}
 set stl+=%#sl_branch#%{SLGitBranch()}%*           " git branch name
-set stl+=\ (%{SLFileSize()})
 set stl+=%#sl_minor#
-set stl+=\ ❯\ %*%{&ft!=''?&ft:'No-FT'}                        " filetype
+set stl+=\ %h%r(%{SLFileSize()})
+set stl+=\ ❯\ %{&ft!=''?&ft:'No-FT'}                        " filetype
 set stl+=%{(&fenc!='utf-8'&&&fenc!='')?'\ \ >\ '.&fenc:''}    " file encoding
 set stl+=%{(&ff!='unix'&&&ff!='')?'\ \ >\ '.&ff:''}           " file endings
 set stl+=%*                                                   " use default color
@@ -146,7 +148,7 @@ set stl+=\ (%l\ of\ %L)\ %P\                                  " offsets
 " endSTATUSLINE }}}
 
 
-" #-- Leader {{{
+" --- Leader {{{
 let mapleader="," "set leader
 
 " Toggle

@@ -15,17 +15,6 @@ filetype plugin indent on
 
 set omnifunc=syntaxcomplete#Complete
 
-set background=dark
-let g:gruvbox_bold = 1
-let g:gruvbox_contrast_dark = "hard"
-
-colorscheme gruvbox
-hi Normal ctermfg=7
-hi SignColumn ctermbg=8 guibg=darkgrey
-hi SpecialKey ctermfg=8 guifg=gray
-hi Folded ctermbg=0
-
-
 set wildmenu " display all matching files when we tab complete
 set list listchars=tab:❯\ ,trail:×
 "set list listchars=tab:»·,trail:×
@@ -73,6 +62,19 @@ else
 	set undodir=~/.vim/sessions/undos/
 	set viminfo='128,/128,:128,<128,s10,h,n~/.vim/sessions/viminfo
 endif
+
+
+" --- Theme (&config) {{{
+set background=dark
+let g:gruvbox_bold = 1
+let g:gruvbox_contrast_dark = "hard"
+
+colorscheme gruvbox
+hi Normal ctermfg=7
+hi SignColumn ctermbg=8 guibg=darkgrey
+hi SpecialKey ctermfg=8 guifg=gray
+hi Folded ctermbg=0
+"}}}
 
 
 " --- STATUSLINE {{{
@@ -215,6 +217,8 @@ fun! ReadGitIgnore()
 	endif
 endf
 
+ino <C-A> <C-O>yiW<End>=<C-R>=<C-R>0<CR>
+
 
 if !exists("*UpdateConfig")
 	fu UpdateConfig()
@@ -235,6 +239,9 @@ if has('autocmd')
 	" auto store/restore views
 	au! BufWinLeave ?* mkview
 	au! BufWinEnter ?* silent loadview
+
+	" Change date on pl scripts (irssi)
+	"au! BufWrite *.pl %s/changed\s=> '.*/="changed => '" . strftime("%c") . "',"/e
 endif
 "}}}
 
@@ -261,7 +268,6 @@ nnoremap <leader>cc :call NERDComment(0, "toggle")<CR>
 vnoremap <leader>cc :call NERDComment(0, "toggle")<CR>
 "}}}
 
-
 " NERDCommenter {{{
 let NERDTreeHighlightCursorline=1
 let NERDTreeRespectWildIgnore=1
@@ -269,7 +275,6 @@ let NERDTreeMinimalUI=1
 let NERDTreeHijackNetrw=1
 nmap <leader>tf :NERDTreeToggle<CR>
 "}}}
-
 
 " Jedi {{{
 let g:jedi#auto_initialization = 0
@@ -292,7 +297,6 @@ let g:jedi#completions_command = "<C-Space>"
 let g:jedi#rename_command = "<leader>r"
 "}}}
 
-
 " UltiSnip {{{
 let g:UltiSnipsSnippetDirectories = ['~/.vim/UltiSnips', 'UltiSnips']
 "let g:UltiSnipsUsePythonVersion = 2
@@ -307,17 +311,14 @@ let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
 nnoremap <leader>u :UltiSnipsEdit<CR>
 "}}}
 
-
 " Close tag {{{
 let g:closetag_filenames = "*.html,*.xhtml,*.phtml"
 "}}}
-
 
 " Align {{{
 xmap ga <Plug>(EasyAlign)
 nmap ga <Plug>(EasyAlign)
 "}}}
-
 
 " GitGutter {{{
 let g:gitgutter_sign_column_always = 1
@@ -328,7 +329,6 @@ let g:gitgutter_sign_removed = '_'
 let g:gitgutter_sign_removed_first_line = '^'
 let g:gitgutter_sign_modified_removed = '*'
 "}}}
-
 
 " Clang-format {{{
 let g:clang_format#style_options = {
@@ -349,15 +349,13 @@ autocmd FileType c,cpp,objc map <buffer><Leader>x <Plug>(operator-clang-format)
 nmap <Leader>C :ClangFormatAutoToggle<CR>
 "}}}
 
-
 " TagBar {{{
-let g:tagbar_width = 30
+let g:tagbar_width = 40
 let g:tagbar_autoclose = 1
 let g:tagbar_compact = 1
 let g:tagbar_iconchars = ['▸', '▾']
 "let g:tagbar_iconchars = ['+', '-']
 nmap <leader>tt :TagbarToggle<CR>
 "}}}
-
 
 " vim: set fen fdm=marker ts=4 sw=4 tw=78 noet :
